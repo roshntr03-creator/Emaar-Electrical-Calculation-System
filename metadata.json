@@ -1,0 +1,5 @@
+{
+  "name": "Emaar Electrical Calculation System",
+  "description": "An integrated web system for calculating electrical loads, distributing sub and main panels, calculating wire and circuit breaker sizes, and estimating material quantities for residential, commercial, and industrial projects.",
+  "requestFramePermissions": []
+}
