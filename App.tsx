@@ -5,10 +5,11 @@ import CalculationForm from './components/CalculationForm';
 import ResultsPage from './components/ResultsPage';
 import { FormData, CalculationResults } from './types';
 import { calculateAll } from './services/calculationService';
+import { LocalizationProvider } from './contexts/LocalizationContext';
 
 type View = 'home' | 'form' | 'results';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [view, setView] = useState<View>('home');
   const [results, setResults] = useState<CalculationResults | null>(null);
 
@@ -50,5 +51,14 @@ const App: React.FC = () => {
     </div>
   );
 };
+
+
+const App: React.FC = () => {
+  return (
+    <LocalizationProvider>
+      <AppContent />
+    </LocalizationProvider>
+  )
+}
 
 export default App;

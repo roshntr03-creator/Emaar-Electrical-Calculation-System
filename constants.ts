@@ -1,44 +1,45 @@
+
 import { FormData } from "./types";
 
-export const BUILDING_TYPES = ['سكني', 'تجاري', 'صناعي'];
+export const BUILDING_TYPES = ['residential', 'commercial', 'industrial'];
 export const VOLTAGES = [220, 380];
-export const CIRCUIT_TYPES = ['إضاءة', 'مقابس', 'تكييف', 'أجهزة ثقيلة'];
-export const CABLE_TYPES = ['نحاسي', 'ألومنيوم'];
-export const INSTALLATION_METHODS = ['أنبوب', 'قناة', 'سلك حر'];
+export const CIRCUIT_TYPES = ['lighting', 'sockets', 'ac', 'heavy_duty'];
+export const CABLE_TYPES = ['copper', 'aluminum'];
+export const INSTALLATION_METHODS = ['pipe', 'duct', 'free_wire'];
 
 // --- Circuit Templates ---
 // All power values in Watts
 export const CIRCUIT_TEMPLATES = {
   LIGHTING: {
-    name: 'دائرة إنارة',
-    type: 'إضاءة',
+    nameKey: 'templateLighting',
+    type: 'lighting',
     power: 800,
     powerFactor: 0.9,
     cableLength: 20,
   },
   GENERAL_SOCKETS: {
-    name: 'دائرة مقابس',
-    type: 'مقابس',
+    nameKey: 'templateSockets',
+    type: 'sockets',
     power: 2000,
     powerFactor: 0.85,
     cableLength: 25,
   },
   AC_1_5_TON: {
-    name: 'مكيف 1.5 طن',
-    type: 'تكييف',
+    nameKey: 'templateAC',
+    type: 'ac',
     power: 2200,
     powerFactor: 0.8,
     cableLength: 15,
   },
   WATER_HEATER: {
-    name: 'سخان مياه',
-    type: 'أجهزة ثقيلة',
+    nameKey: 'templateWaterHeater',
+    type: 'heavy_duty',
     power: 3000,
     powerFactor: 1.0,
     cableLength: 10,
   },
   CUSTOM: {
-    name: 'دائرة مخصصة',
+    nameKey: 'templateCustom',
     type: '',
     power: 0,
     powerFactor: 0.9,
@@ -52,14 +53,14 @@ export type CircuitTemplateKey = keyof typeof CIRCUIT_TEMPLATES;
 export const INITIAL_FORM_DATA: FormData = {
   projectInfo: {
     projectName: '',
-    buildingType: 'سكني',
+    buildingType: 'residential',
     voltage: 220,
     frequency: 50,
   },
   circuits: [], // Start with no circuits
   wiringInfo: {
-    cableType: 'نحاسي',
-    installationMethod: 'أنبوب',
+    cableType: 'copper',
+    installationMethod: 'pipe',
     ambientTemp: 40,
   },
   panelInfo: {
@@ -76,14 +77,14 @@ export const INITIAL_FORM_DATA: FormData = {
 // Note: These values are simplified. Real-world calculations require detailed tables from IEC/NEC standards.
 // Resistivity (ρ) in (Ω·mm²/m) at operating temperature (~70°C)
 export const CABLE_RESISTIVITY = {
-  'نحاسي': 0.021,
-  'ألومنيوم': 0.034,
+  'copper': 0.021,
+  'aluminum': 0.034,
 };
 
 // Current density (A/mm²) - A highly simplified factor for wire sizing.
 export const CURRENT_DENSITY = {
-  'نحاسي': 6,
-  'ألومنيوم': 4,
+  'copper': 6,
+  'aluminum': 4,
 };
 
 // Standard breaker sizes (Amperes)

@@ -1,4 +1,5 @@
-import { FormData, CalculationResults, CircuitResult, MaterialQuantities } from '../types';
+
+import { FormData, CalculationResults, CircuitResult, MaterialQuantities, AppWarning } from '../types';
 import { 
     CABLE_RESISTIVITY, 
     CURRENT_DENSITY, 
@@ -13,7 +14,7 @@ const findNextStandardSize = (value: number, standardSizes: number[]): number =>
 };
 
 export const calculateAll = (formData: FormData): CalculationResults => {
-  const warnings: string[] = [];
+  const warnings: AppWarning[] = [];
   let totalLoadW = 0;
   let totalApparentPowerVA = 0;
 
@@ -39,10 +40,16 @@ export const calculateAll = (formData: FormData): CalculationResults => {
 
     // FR-3.6: Check standards and add warnings
     if (voltageDrop > VOLTAGE_DROP_LIMIT) {
-      warnings.push(`دائرة "${circuit.name}": هبوط الجهد (${voltageDrop.toFixed(2)}%) يتجاوز الحد المسموح به (${VOLTAGE_DROP_LIMIT}%). يُنصح بزيادة مقطع السلك.`);
+        warnings.push({
+            key: 'warningVoltageDrop',
+            params: { name: circuit.name, value: voltageDrop.toFixed(2), limit: VOLTAGE_DROP_LIMIT }
+        });
     }
     if(breakerSize < current){
-        warnings.push(`دائرة "${circuit.name}": القاطع المقترح (${breakerSize}A) أقل من تيار الحمل (${current.toFixed(2)}A). قد يكون هناك خطأ في الحساب.`);
+        warnings.push({
+            key: 'warningBreakerSize',
+            params: { name: circuit.name, breaker: breakerSize, current: current.toFixed(2) }
+        });
     }
 
     totalLoadW += circuit.power;

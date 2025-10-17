@@ -1,6 +1,7 @@
+
 export interface ProjectInfo {
   projectName: string;
-  buildingType: 'سكني' | 'تجاري' | 'صناعي';
+  buildingType: 'residential' | 'commercial' | 'industrial';
   voltage: 220 | 380;
   frequency: 50;
 }
@@ -8,15 +9,15 @@ export interface ProjectInfo {
 export interface Circuit {
   id: string;
   name: string;
-  type: 'إضاءة' | 'مقابس' | 'تكييف' | 'أجهزة ثقيلة' | '';
+  type: 'lighting' | 'sockets' | 'ac' | 'heavy_duty' | '';
   power: number; // in Watts
   powerFactor: number;
   cableLength: number; // in meters
 }
 
 export interface WiringInfo {
-  cableType: 'نحاسي' | 'ألومنيوم';
-  installationMethod: 'أنبوب' | 'قناة' | 'سلك حر';
+  cableType: 'copper' | 'aluminum';
+  installationMethod: 'pipe' | 'duct' | 'free_wire';
   ambientTemp: number;
 }
 
@@ -50,6 +51,11 @@ export interface MaterialQuantities {
     panels: number;
 }
 
+export interface AppWarning {
+    key: string;
+    params: Record<string, string | number>;
+}
+
 export interface CalculationResults {
   projectInfo: ProjectInfo;
   totalLoadKW: number;
@@ -57,6 +63,6 @@ export interface CalculationResults {
   mainBreakerSize: number;
   mainFeederWireSize: number;
   circuitResults: CircuitResult[];
-  warnings: string[];
+  warnings: AppWarning[];
   quantities: MaterialQuantities;
 }
