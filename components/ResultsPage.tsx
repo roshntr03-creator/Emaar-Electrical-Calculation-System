@@ -1,5 +1,8 @@
 
-import React from 'react';
+import React, { useState, useCallback } from 'react';
+import { GoogleGenAI } from '@google/genai';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { CalculationResults, CircuitResult } from '../types';
 import Card from './ui/Card';
 import Button from './ui/Button';
@@ -53,6 +56,130 @@ const MobileCircuitCard: React.FC<{ circuit: CircuitResult }> = ({ circuit }) =>
     );
 }
 
+const GeminiAnalysis: React.FC<{ results: CalculationResults }> = ({ results }) => {
+    const { t, language } = useLocalization();
+    const [analysis, setAnalysis] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const generatePrompt = useCallback(() => {
+        const reportData = JSON.stringify(results, null, 2);
+        const lang = language === 'ar' ? 'Arabic' : 'English';
+        
+        return `
+You are an expert electrical engineer and consultant with 20 years of experience designing safe, efficient, and cost-effective electrical systems. You are reviewing a preliminary electrical load calculation report.
+
+Your task is to provide a comprehensive analysis and a set of actionable recommendations based on the provided data. Structure your response in clear, well-formatted Markdown. Use headings, bold text, and lists to improve readability. Ensure your entire response is in ${lang}.
+
+The report data is as follows:
+\`\`\`json
+${reportData}
+\`\`\`
+
+Based on this data, please generate a report with the following sections:
+
+### 1. Executive Summary
+Provide a high-level overview of the project's electrical design. Mention the total load, main service size, and any immediate red flags.
+
+### 2. Design Observations & Optimizations
+Analyze the circuit distribution and load balancing. Suggest potential optimizations. For example:
+- Are circuits overloaded or underutilized?
+- Could loads be grouped more logically?
+- Are there opportunities to use different circuit types for better efficiency?
+- Comment on the choice of demand factor and safety factor. Are they appropriate for this type of project?
+
+### 3. Safety & Code Compliance Review
+Review the results against common electrical standards (like NEC/IEC). Highlight potential issues that go beyond the basic warnings provided in the report.
+- Scrutinize the breaker and wire sizing for each circuit. Are they adequate? Over-sized?
+- Is the main feeder cable appropriately sized for the total demanded current?
+- Comment on the calculated voltage drop values. Even if they are within the limit, are there any that are borderline high and could be improved?
+
+### 4. Material & Cost-Saving Suggestions
+Provide recommendations for potential cost savings without compromising safety or quality.
+- Could alternative materials be used (e.g., aluminum vs. copper for the main feeder)? Discuss the pros and cons.
+- Suggest ways to optimize cable runs to reduce total length.
+- Comment on the bill of materials. Does it look reasonable for a project of this scale?
+
+### 5. Next Steps for the Engineer
+Provide a concise checklist of the next steps an engineer should take to move this preliminary design forward. For example:
+- Perform short-circuit calculations.
+- Develop a detailed panel schedule.
+- Create single-line diagrams.
+- Verify local code requirements.
+`;
+    }, [results, language]);
+
+    const handleGenerateAnalysis = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        setAnalysis('');
+
+        try {
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const prompt = generatePrompt();
+            
+            const responseStream = await ai.models.generateContentStream({
+                model: 'gemini-2.5-pro',
+                contents: prompt,
+            });
+
+            for await (const chunk of responseStream) {
+                setAnalysis(prev => prev + chunk.text);
+            }
+
+        } catch (err) {
+            console.error(err);
+            setError(t('ai_analysis_error'));
+        } finally {
+            setIsLoading(false);
+        }
+    }, [generatePrompt, t]);
+
+    return (
+        <Card>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
+                <h3 className="text-xl font-semibold mb-2 sm:mb-0">{t('ai_analysis_title')}</h3>
+                {!analysis && !isLoading && (
+                    <Button onClick={handleGenerateAnalysis} disabled={isLoading}>
+                        <Icon name="sparkles" className="w-5 h-5" />
+                        {t('ai_analysis_button')}
+                    </Button>
+                )}
+            </div>
+            
+            <div className="prose prose-slate max-w-none text-right rtl:text-right ltr:text-left">
+                {isLoading && (
+                    <div className="flex flex-col items-center justify-center p-8 text-center bg-slate-50 rounded-lg">
+                        <Icon name="cog" className="w-10 h-10 text-blue-500 animate-spin mb-4" />
+                        <p className="text-slate-600">{t('ai_analysis_loading')}</p>
+                    </div>
+                )}
+                
+                {error && (
+                    <div className="p-4 text-red-700 bg-red-100 border border-red-400 rounded-lg">
+                        <p>{error}</p>
+                    </div>
+                )}
+
+                {!analysis && !isLoading && !error && (
+                     <div className="flex flex-col sm:flex-row items-center gap-6 p-4 bg-slate-50 rounded-lg">
+                        <Icon name="sparkles" className="w-16 h-16 text-blue-400 flex-shrink-0" />
+                        <p className="text-slate-600 text-sm">
+                           {t('ai_analysis_intro')}
+                        </p>
+                    </div>
+                )}
+
+                {analysis && (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {analysis}
+                    </ReactMarkdown>
+                )}
+            </div>
+        </Card>
+    );
+};
+
 const ResultsPage: React.FC<ResultsPageProps> = ({ results, onBackToHome, onStartNew }) => {
     const { t } = useLocalization();
 
@@ -99,6 +226,9 @@ const ResultsPage: React.FC<ResultsPageProps> = ({ results, onBackToHome, onStar
                         <SummaryCard title={t('summary_main_breaker')} value={results.mainBreakerSize.toString()} unit="A" iconName="cog" />
                         <SummaryCard title={t('summary_main_cable')} value={results.mainFeederWireSize.toString()} unit="mm²" iconName="chart" />
                     </div>
+
+                    {/* AI ANALYSIS SECTION */}
+                    <GeminiAnalysis results={results} />
 
                     {/* Section 2: Recommendations (Conditional) */}
                     {results.warnings.length > 0 && (

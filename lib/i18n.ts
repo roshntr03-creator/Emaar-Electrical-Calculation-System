@@ -152,6 +152,13 @@ export const translations = {
     results_disclaimer_title: 'Disclaimer',
     results_disclaimer_content: 'These calculations are based on international electrical standards (IEC/NEC) and are for guidance only.',
     results_disclaimer_review: 'It is recommended to have the results reviewed by a certified electrical engineer before implementing any work.',
+
+    // AI Analysis
+    ai_analysis_title: 'AI-Powered Analysis & Recommendations',
+    ai_analysis_intro: 'Leverage the power of AI to get an expert analysis of your electrical design. The AI will provide an executive summary, optimization suggestions, safety checks, and more.',
+    ai_analysis_button: 'Generate AI Analysis',
+    ai_analysis_loading: 'The AI is analyzing your report... This may take a moment.',
+    ai_analysis_error: 'An error occurred while generating the AI analysis. Please try again.',
   },
   ar: {
     // General
@@ -307,5 +314,12 @@ export const translations = {
     results_disclaimer_title: 'إخلاء مسؤولية',
     results_disclaimer_content: 'هذه الحسابات مبنية على المعايير الكهربائية العالمية (IEC/NEC) وهي للاستخدام الاسترشادي فقط.',
     results_disclaimer_review: 'يُنصح بمراجعة النتائج من قبل مهندس كهرباء معتمد قبل تنفيذ أي أعمال.',
+    
+    // AI Analysis
+    ai_analysis_title: 'تحليل وتوصيات مدعومة بالذكاء الاصطناعي',
+    ai_analysis_intro: 'استفد من قوة الذكاء الاصطناعي للحصول على تحليل خبير لتصميمك الكهربائي. سيقدم الذكاء الاصطناعي ملخصًا تنفيذيًا، واقتراحات للتحسين، وفحوصات السلامة، والمزيد.',
+    ai_analysis_button: 'إنشاء تحليل AI',
+    ai_analysis_loading: 'يقوم الذكاء الاصطناعي بتحليل تقريرك... قد يستغرق هذا بعض الوقت.',
+    ai_analysis_error: 'حدث خطأ أثناء إنشاء تحليل الذكاء الاصطناعي. يرجى المحاولة مرة أخرى.',
   },
 };
